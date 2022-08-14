@@ -7,6 +7,6 @@
         name="external_files"
         path="."/>
     <files-path
-        name="printInvoiceShare"
-        path="./pdfs/printInvoiceShare.pdf"/>
+        name="invoiceShare"
+        path="./pdfs/invoiceShare.pdf"/>
 </paths>

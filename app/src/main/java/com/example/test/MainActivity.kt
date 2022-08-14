@@ -167,6 +167,11 @@ class MainActivity : AppCompatActivity(), PrinterBottomSheetFragment.PrintEventL
                 runOnUiThread {
                     this.binding.activityMainPrinterBtn.isEnabled = false
                 }
+                Toast.makeText(
+                    baseContext,
+                    "دستور چاپ ارسال شد",
+                    Toast.LENGTH_SHORT
+                ).show()
                 posPrinter.printPDFFile(
                     POSPrinterConst.PTR_S_RECEIPT,
                     uri,
@@ -193,7 +198,7 @@ class MainActivity : AppCompatActivity(), PrinterBottomSheetFragment.PrintEventL
     @RequiresApi(Build.VERSION_CODES.O)
     private fun share() {
         val invoiceSale = InvoiceSale()
-        val file = invoiceSale.createTable(this, "/printInvoiceShare.pdf")
+        val file = invoiceSale.createTable(this, "/invoiceShare.pdf")
         val shareIntent = Intent("android.intent.action.SEND")
         val shareFileUri =
             FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.provider", file)
