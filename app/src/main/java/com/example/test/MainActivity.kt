@@ -1,7 +1,6 @@
 package com.example.test
 
 import InvoiceSale
-import ReceiptMoney
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -12,24 +11,19 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import com.bxl.config.editor.BXLConfigLoader
 import com.example.bixolonprinter.data.model.PrinterDevice
-import com.example.test.PrinterBottomSheetFragment
-import com.example.test.PrinterViewModel
-import com.example.test.R
 import com.example.test.databinding.ActivityMainBinding
 import jpos.POSPrinter
 import jpos.POSPrinterConst
 import org.koin.android.ext.android.inject
-import java.io.File
 import java.time.LocalDateTime
 
 
@@ -164,21 +158,35 @@ class MainActivity : AppCompatActivity(), PrinterBottomSheetFragment.PrintEventL
                 bxlConfigLoader.saveFile()
             }
 
-            val posPrinter = POSPrinter(this)
-            posPrinter.open(sharedViewModel.connectDevicesLiveData.value?.name)
-            posPrinter.claim(5000)
-            posPrinter.deviceEnabled = true
-            val uri = Uri.fromFile(file)
-            this.binding.activityMainPrinterBtn.isEnabled = false
-            posPrinter.printPDFFile(
-                POSPrinterConst.PTR_S_RECEIPT,
-                uri,
-                600,
-                POSPrinterConst.PTR_PDF_LEFT,
-                1
-            )
-            posPrinter.close()
-            this.binding.activityMainPrinterBtn.isEnabled = true
+            try {
+                val posPrinter = POSPrinter(this)
+                posPrinter.open(sharedViewModel.connectDevicesLiveData.value?.name)
+                posPrinter.claim(5000)
+                posPrinter.deviceEnabled = true
+                val uri = Uri.fromFile(file)
+                runOnUiThread {
+                    this.binding.activityMainPrinterBtn.isEnabled = false
+                }
+                posPrinter.printPDFFile(
+                    POSPrinterConst.PTR_S_RECEIPT,
+                    uri,
+                    600,
+                    POSPrinterConst.PTR_PDF_LEFT,
+                    1
+                )
+                posPrinter.close()
+                runOnUiThread {
+                    this.binding.activityMainPrinterBtn.isEnabled = true
+                }
+            }catch (e:Exception){
+                Toast.makeText(
+                    baseContext,
+                    "Device is not available",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+
         }.start()
     }
 
