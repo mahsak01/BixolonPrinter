@@ -1,6 +1,5 @@
-package com.example.bixolonprinter.data.model
+package com.example.test.data.model
 
-import android.bluetooth.BluetoothClass
 import android.bluetooth.BluetoothDevice
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

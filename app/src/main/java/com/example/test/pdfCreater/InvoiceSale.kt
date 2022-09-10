@@ -2,6 +2,10 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.test.R
+import com.example.test.common.beautifyPrice
+import com.example.test.common.englishNumberToPersian
+import com.example.test.common.stringToNumber
+import com.example.test.data.model.InvoiceSaleItem
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.BaseFont
 import com.itextpdf.text.pdf.PdfWriter
@@ -14,24 +18,24 @@ private const val FONT = "assets/iran_sans_mobile.ttf"
 class InvoiceSale {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createTable(context: Context,fileName:String):File {
+    fun createTable(context: Context,fileName:String,data:List<InvoiceSaleItem>):File {
 
 
-        val fontBig = FontFactory.getFont(FONT, BaseFont.IDENTITY_H, 8F, Font.NORMAL)
-        val fontSmall = FontFactory.getFont(FONT, BaseFont.IDENTITY_H, 6F, Font.NORMAL)
+        val fontBig = FontFactory.getFont(FONT, BaseFont.IDENTITY_H, 7F, Font.NORMAL)
+        val fontSmall = FontFactory.getFont(FONT, BaseFont.IDENTITY_H, 5F, Font.NORMAL)
         val fontYekan = BaseFont.createFont(FONT, BaseFont.IDENTITY_H, BaseFont.EMBEDDED)
 
         val items = ArrayList<String>()
         items.add("۱۰:۵۵:۴۹")
-        items.add("۱۳۹۸/۰۸/۲۶")
+        items.add(englishNumberToPersian(data[0].invoiceDateSlash!!))
         items.add("شماره فاکتور")
-        items.add("۱۰۹۸۳۰۰۵۸")
+        items.add(englishNumberToPersian(data[0].invoiceNo!!))
         items.add("زمان تسویه")
-        items.add("۰")
+        items.add(englishNumberToPersian("0".beautifyPrice()))
         items.add("نوع پرداخت")
         items.add("نقد")
         items.add("نام مشتری")
-        items.add("عمومي - / مرکزي")
+        items.add(data[0].customerName!!)
 
         val tableGenerator = TableGenerator()
         val itemsDocument1 = ArrayList<Element>()
@@ -54,7 +58,7 @@ class InvoiceSale {
         itemsDocument1.add(headTable)
 
 
-        itemsDocument1.add(tableGenerator.textRightWithBorder("آدرس:", "-", fontBig))
+        itemsDocument1.add(tableGenerator.textRightWithBorder("آدرس:", data[0].address!!, fontBig))
 
         val itemsT2 = ArrayList<String>()
         itemsT2.add("کالا یا خدمات")
@@ -63,30 +67,14 @@ class InvoiceSale {
         itemsT2.add("تخفیف")
         itemsT2.add("فـی پـس از تخفیف")
         itemsT2.add("مبلغ کل")
-        itemsT2.add("تست ۱")
-        itemsT2.add("۴۶")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۰%")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۴۶۰,۰۰۰")
-        itemsT2.add("تست ۱")
-        itemsT2.add("۴۶")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۰%")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۴۶۰,۰۰۰")
-        itemsT2.add("تست ۱")
-        itemsT2.add("۴۶")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۰%")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۴۶۰,۰۰۰")
-        itemsT2.add("تست ۱")
-        itemsT2.add("۴۶")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۰%")
-        itemsT2.add("۱۰,۰۰۰")
-        itemsT2.add("۴۶۰,۰۰۰")
+        for ( item in data){
+            itemsT2.add(item.itemDs!!)
+            itemsT2.add(stringToNumber(item.itemValue!!.toString()))
+            itemsT2.add(stringToNumber(item.unitPrice!!.toString().beautifyPrice()))
+            itemsT2.add("۰%")
+            itemsT2.add(englishNumberToPersian("10000".beautifyPrice()))
+            itemsT2.add(stringToNumber(item.totalPrice.toString().beautifyPrice()))
+        }
         var array = FloatArray(6)
         array[0] = 20F
         array[1] = 20F
@@ -101,13 +89,13 @@ class InvoiceSale {
 
         val items3 = ArrayList<String>()
         items3.add("جمع کل به ريال :")
-        items3.add("۴۶۰,۰۰۰")
+        items3.add(stringToNumber(data[0].sumTotalPrice.toString().beautifyPrice()))
         items3.add("مبلغ پس از کسر تخفيفات به ريال :")
-        items3.add("۴۶۰,۰۰۰")
+        items3.add(stringToNumber(data[0].sumUnTaxPrice.toString().beautifyPrice()))
         items3.add("بدهي پيشين به ريال :")
-        items3.add("۵۰۰,۰۰۰")
+        items3.add("۰")
         items3.add("جمع کل مانده حساب به ريال :")
-        items3.add("۹۶۰,۰۰۰")
+        items3.add(stringToNumber(data[0].sumFinalPrice.toString().beautifyPrice()))
         val footerTable = tableGenerator.footerTable(items3, fontBig)
         itemsDocument1.add(footerTable)
 
@@ -170,7 +158,10 @@ class InvoiceSale {
         tableGenerator.totalHeight += 40
 
         val document = Document(Rectangle(226F, tableGenerator.totalHeight), 0F, 0F, 0F, 0F)
+        val folder = File(context.getExternalFilesDir(null)?.path + "/pdfs")
         val file = File(context.getExternalFilesDir(null)?.path + "/pdfs", fileName)
+        if (!folder.exists())
+            folder.mkdirs()
         if (!file.exists()) {
             file.createNewFile()
         }
@@ -182,7 +173,7 @@ class InvoiceSale {
         itemsDocument1.forEach {
             document.add(it)
         }
-        document.add(tableGenerator.barcodeTable("109830058", fontYekan, pdfWriter))
+        document.add(tableGenerator.barcodeTable(data[0].barcodeValue, fontYekan, pdfWriter))
 
         itemsDocument2.forEach {
             document.add(it)

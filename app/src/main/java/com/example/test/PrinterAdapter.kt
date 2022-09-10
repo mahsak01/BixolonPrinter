@@ -4,13 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bixolonprinter.data.model.PrinterDevice
+import com.example.test.data.model.PrinterDevice
 import com.example.test.databinding.LayoutPrinterBottomSheetItemBinding
 
-class PrinterAdapter(val printerList: MutableList<PrinterDevice>,val printerEventListener: PrinterEventListener) : RecyclerView.Adapter<PrinterAdapter.ViewHolder>()  {
+class PrinterAdapter(private val printerList: MutableList<PrinterDevice>, val printerEventListener: PrinterEventListener) : RecyclerView.Adapter<PrinterAdapter.ViewHolder>()  {
 
 
-    inner class ViewHolder(val binding: LayoutPrinterBottomSheetItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: LayoutPrinterBottomSheetItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bindingServer(printerDevice: PrinterDevice){
             binding.layoutPrinterPrinterTv.text = printerDevice.name

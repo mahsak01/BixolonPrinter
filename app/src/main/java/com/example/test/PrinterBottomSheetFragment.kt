@@ -8,21 +8,19 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bxl.config.editor.BXLConfigLoader
-import com.example.bixolonprinter.data.model.PrinterDevice
+import com.example.test.data.model.PrinterDevice
+import com.example.test.data.model.PrinterModelFile
 import com.example.test.databinding.FragmentPrinterBottomSheetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import jpos.POSPrinter
-import jpos.POSPrinterConst
 import org.koin.android.ext.android.inject
-import java.lang.Exception
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class PrinterBottomSheetFragment(val printEventListener: PrintEventListener) : BottomSheetDialogFragment(),
     PrinterAdapter.PrinterEventListener {
 
     private lateinit var binding: FragmentPrinterBottomSheetBinding
-    private val sharedViewModel: PrinterViewModel by inject()
+    private val sharedViewModel: PrinterViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,11 +69,11 @@ class PrinterBottomSheetFragment(val printEventListener: PrintEventListener) : B
     override fun selectPrinter(printerDevice: PrinterDevice) {
         sharedViewModel.addConnectBluetoothDevice(printerDevice)
         dismiss()
-        printEventListener.print(printerDevice)
+        printEventListener.print(printerDevice,PrinterModelFile.InvoiceSaleItem)
 
     }
     interface PrintEventListener{
-        fun print(printerDevice: PrinterDevice);
+        fun print(printerDevice: PrinterDevice,printerModelFile: PrinterModelFile);
     }
 
 
